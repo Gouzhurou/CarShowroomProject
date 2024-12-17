@@ -1,35 +1,76 @@
-# CarShowroomProject
+# docker-compose task
 
-## Tools and Technologies Used
-- Java 11v
-- Spring Boot 2.6.4v
-- JDK
-- Hibernate
-- Maven
-- Spring Data JPA
-- Swagger 3.0.0v
-- IDE - Eclipse 2021-03
+## Задание
+Цель лабораторной: собрать из исходного когда и запустить в докере рабочее приложение с базой данных (любое опенсорс - Java, python/django/flask, golang).
 
-## Car Showroom Entity RelationShip Diagram
-![erd-diagram](https://github.com/zeynepsl/CarShowroomProject/blob/master/images/car-showroom-db.PNG)
+1. Образ должен быть легковесным
+2. Использовать базовые легковестные образы - alpine
+3. Вся конфигурация приложения должна быть через переменные окружения
+4. Статика (зависимости) должна быть внешним томом `volume`
+5. Создать файл `docker-compose` для старта и сборки
+6. В `docker-compose` нужно использовать базу данных (postgresql,mysql,mongodb etc.)
+7. При старте приложения должно быть учтено выполнение автоматических миграций
+8. Контейнер должен запускаться от непривилегированного пользователя
+9. После установки всех нужных утилит, должен очищаться кеш
 
-## Use Case Diagram 
+## Open-source проект
+https://github.com/zeynepsl/CarShowroomProject
 
-![use-case-diagram](https://github.com/zeynepsl/CarShowroomProject/blob/master/images/car-showroom-use-case-diagram.jpg)
+## Запуск 
+Создание образа:
 
-## Layers
-- [business](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/business)
-- [config](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/config)
-- [constant](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/constant)
-- [controller](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/controller)
-- [converter](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/converter)
-- [core](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/core)
-- [dataAccess](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/dataAccess)
-- [dto](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/dto)
-- [entity](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/entity)
-- [exception](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/exception)
-- [securtity](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/security)
-- [validationRule](https://github.com/zeynepsl/CarShowroomProject/tree/master/carShowroomManagementSystem/src/main/java/uniProject/carShowroomManagementSystem/validationRule)
+```
+docker build -t car-showroom .
+```
 
-## Api
-[api documantation](https://github.com/zeynepsl/CarShowroomProject/blob/master/images/api.png)
+Создание контейнера:
+
+```
+docker-compose up --build
+```
+
+1) Логи успешного запуска приложения app
+![img_1.png](img_1.png)
+
+2) Логи успешного запуска БД
+![img_2.png](img_2.png)
+
+## Инициализация 
+Файл начальной миграции: init.sql
+
+1) Подключение к контейнеру базы данных
+```
+docker exec -it carshowroomproject-db-1 bash
+```
+
+2) Подключение к PostgreSQL
+```
+psql -U postgres
+```
+
+3) Переход к базе данных 
+```
+\c CarShowroom
+```
+
+4) Запрос данных, созданных при инициализации
+```
+select * from test;
+```
+
+![img.png](img.png)
+
+## Тестирование
+
+1) Запрос добавления бренда по внутренней API `POST /api/brands`:
+```
+curl --location 'http://localhost:8080/api/brands' \
+--header 'Content-Type: application/json' \
+--data '{
+    "name": "BMW"
+}'
+```
+
+2) Результат выполнения запроса в БД
+
+![img_3.png](img_3.png)
